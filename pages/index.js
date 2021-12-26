@@ -1,166 +1,105 @@
-import Head from 'next/head'
-import Link from 'next/link'
+import React from 'react';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import { Button, Grid } from '@material-ui/core';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
+import { useWeb3React } from "@web3-react/core"
+import { conMetaMask } from "../web3/connect";
+const useHome = () => {
+  const { active, account, library, connector, activate, deactivate } = useWeb3React();
+  const [isConnect, setIsConnect] = React.useState(false);
 
+  const [isOpen, setIsOpen] = React.useState(false);
+  const connectMetaMask = async () => {
+    const address = await conMetaMask();
+    setIsConnect(true);
+    console.log(address);
+    closeModal();
+  }
+  const disConnectWallet = async () => {  
+    setIsConnect(false);
+  }
+  const openModal = () => {
+    setIsOpen(true);
+  }
+  const closeModal = () => {
+    setIsOpen(false);
+  }
+  return { connectMetaMask, openModal, closeModal, isOpen, disConnectWallet, isConnect };
+}
 export default function Home() {
+  const { connectMetaMask, openModal, closeModal, isOpen, disConnectWallet, isConnect } = useHome();
+  const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    borderRadius: 2,
+    p: 4,
+  };
   return (
     <div className="container">
-      <Head>
-        <nav>
-          <Link href="/"><a className="nav">Home</a></Link>
-          <Link href="/challenge"><a className="nav">Challenge</a></Link>
-          <Link href="/reward"><a className="nav">Reward</a></Link>
-          <Link href="/claim"><a className="nav">Claim</a></Link>
-        </nav>
-      </Head>
+      <Modal
+        open={isOpen}
+        onClose={closeModal}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
 
-      <main>
-       
-      </main>
-
-      <footer>
-        <a
-          href="#"
-          target="_blank"
-          rel="noopener noreferrer"
+          <Grid container>
+            <Typography variant="h4" align="center">
+              Connect Wallet
+            </Typography>
+            <Grid item xs={12} style={{ marginTop: '10px' }} >
+              <Button variant="outlined" onClick={connectMetaMask} color="primary" startIcon={<img src="images/metamask.png" width="30" />}>
+                MetaMask
+              </Button>
+            </Grid>
+            <Grid item xs={12} style={{ marginTop: '10px' }}>
+              <Button variant="outlined" onClick={openModal} color="secondary" startIcon={<img src="images/walletconnect.png" width="30" />}>
+                WalletConnect
+              </Button>
+            </Grid>
+            <Grid item xs={12} style={{ marginTop: '10px' }}>
+              <Button variant="outlined" onClick={openModal} startIcon={<img src="images/trustwallet.png" width="30" />}>
+                TrustWallet
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
+      </Modal>
+      <Toolbar sx={{ borderBottom: 1, borderColor: 'divider' }}>
+        <Button size="small">WEB3</Button>
+        <Typography
+          component="h2"
+          variant="h5"
+          color="inherit"
+          align="center"
+          noWrap
+          sx={{ flex: 1 }}
         >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel" className="logo" />
-        </a>
-      </footer>
+          Web3 Learning
+        </Typography>
+        {
+          !isConnect ? (
+            <Button variant="outlined" size="small" onClick={openModal}>
+              Connect Wallet
+            </Button>
 
-      <style jsx>{`
-        .nav {
-          padding: 20px;
-        }
-        .container {
-          min-height: 100vh;
-          padding: 0 0.5rem;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        }
+          ) : (
+            <Button variant="outlined" size="small" onClick={disConnectWallet}>
+              Disconnect
+            </Button>
 
-        main {
-          padding: 5rem 0;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
+          )
         }
-
-        footer {
-          width: 100%;
-          height: 100px;
-          border-top: 1px solid #eaeaea;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-        footer img {
-          margin-left: 0.5rem;
-        }
-
-        footer a {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-        a {
-          color: inherit;
-          text-decoration: none;
-        }
-
-        .title a {
-          color: #0070f3;
-          text-decoration: none;
-        }
-
-        .title a:hover,
-        .title a:focus,
-        .title a:active {
-          text-decoration: underline;
-        }
-
-        .title {
-          margin: 0;
-          line-height: 1.15;
-          font-size: 4rem;
-        }
-
-        .title,
-        .description {
-          text-align: center;
-        }
-
-        .description {
-          line-height: 1.5;
-          font-size: 1.5rem;
-        }
-
-        code {
-          background: #fafafa;
-          border-radius: 5px;
-          padding: 0.75rem;
-          font-size: 1.1rem;
-          font-family: Menlo, Monaco, Lucida Console, Liberation Mono,
-            DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
-        }
-
-        .grid {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-wrap: wrap;
-
-          max-width: 800px;
-          margin-top: 3rem;
-        }
-
-        .card {
-          margin: 1rem;
-          flex-basis: 45%;
-          padding: 1.5rem;
-          text-align: left;
-          color: inherit;
-          text-decoration: none;
-          border: 1px solid #eaeaea;
-          border-radius: 10px;
-          transition: color 0.15s ease, border-color 0.15s ease;
-        }
-
-        .card:hover,
-        .card:focus,
-        .card:active {
-          color: #0070f3;
-          border-color: #0070f3;
-        }
-
-        .card h3 {
-          margin: 0 0 1rem 0;
-          font-size: 1.5rem;
-        }
-
-        .card p {
-          margin: 0;
-          font-size: 1.25rem;
-          line-height: 1.5;
-        }
-
-        .logo {
-          height: 1em;
-        }
-
-        @media (max-width: 600px) {
-          .grid {
-            width: 100%;
-            flex-direction: column;
-          }
-        }
-      `}</style>
+      </Toolbar>
 
       <style jsx global>{`
         html,
