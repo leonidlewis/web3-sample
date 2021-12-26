@@ -16,7 +16,6 @@ function startApp(provider) {
 
 function handleChainChanged(_chainId) {
     console.log('chainId--', _chainId)
-    // window.location.reload();
 }
 export const conMetaMask = async () => {
     const provider = await detectEthereumProvider();
@@ -39,6 +38,11 @@ export const conMetaMask = async () => {
         console.log('connet error----', error)
     }
 }
+
 export const disConnectMetaMask = () => {
     ethereum.on('disconnect');
+}
+
+export const userBalance = async => {
+    
 }

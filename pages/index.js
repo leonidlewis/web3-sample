@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { Button, Grid } from '@material-ui/core';
@@ -6,10 +7,12 @@ import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import { useWeb3React } from "@web3-react/core"
 import { conMetaMask } from "../web3/connect";
+
 const useHome = () => {
   const { active, account, library, connector, activate, deactivate } = useWeb3React();
+  const [walletConnecter, setWalletConnecter] = React.useState(null);
   const [isConnect, setIsConnect] = React.useState(false);
-
+  
   const [isOpen, setIsOpen] = React.useState(false);
   const connectMetaMask = async () => {
     const address = await conMetaMask();
@@ -17,7 +20,7 @@ const useHome = () => {
     console.log(address);
     closeModal();
   }
-  const disConnectWallet = async () => {  
+  const disConnectWallet = async () => {
     setIsConnect(false);
   }
   const openModal = () => {
@@ -26,10 +29,10 @@ const useHome = () => {
   const closeModal = () => {
     setIsOpen(false);
   }
-  return { connectMetaMask, openModal, closeModal, isOpen, disConnectWallet, isConnect };
+  return { connectMetaMask, openModal, closeModal, isOpen, disConnectWallet, isConnect, walletConnect };
 }
 export default function Home() {
-  const { connectMetaMask, openModal, closeModal, isOpen, disConnectWallet, isConnect } = useHome();
+  const { connectMetaMask, openModal, closeModal, isOpen, disConnectWallet, isConnect, walletConnect } = useHome();
   const style = {
     position: 'absolute',
     top: '50%',
@@ -62,7 +65,7 @@ export default function Home() {
               </Button>
             </Grid>
             <Grid item xs={12} style={{ marginTop: '10px' }}>
-              <Button variant="outlined" onClick={openModal} color="secondary" startIcon={<img src="images/walletconnect.png" width="30" />}>
+              <Button variant="outlined" onClick={walletConnect} color="secondary" startIcon={<img src="images/walletconnect.png" width="30" />}>
                 WalletConnect
               </Button>
             </Grid>
@@ -75,7 +78,9 @@ export default function Home() {
         </Box>
       </Modal>
       <Toolbar sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Button size="small">WEB3</Button>
+        <Link href="/claim">
+          <Button size="small" >WEB3</Button>
+        </Link>
         <Typography
           component="h2"
           variant="h5"
