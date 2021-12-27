@@ -2,22 +2,27 @@ import React from 'react';
 import Link from 'next/link';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { Button, Grid } from '@material-ui/core';
+import { Button, Grid, TextField } from '@material-ui/core';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import { useWeb3React } from "@web3-react/core"
-import { conMetaMask } from "../web3/connect";
-
+import { conMetaMask, userBalance } from "../web3/connect";
+import { typography } from '@mui/system';
+import { getSortedPostsData } from '../lib/posts'
 const useHome = () => {
   const { active, account, library, connector, activate, deactivate } = useWeb3React();
   const [walletConnecter, setWalletConnecter] = React.useState(null);
+  const [userAddress, setUserAddress] = React.useState('');
   const [isConnect, setIsConnect] = React.useState(false);
-  
+  const [balance, setBalance] = React.useState('');
   const [isOpen, setIsOpen] = React.useState(false);
   const connectMetaMask = async () => {
     const address = await conMetaMask();
     setIsConnect(true);
     console.log(address);
+    setUserAddress(address);
+    const x = await userBalance(address);
+    setBalance(x);
     closeModal();
   }
   const disConnectWallet = async () => {
@@ -29,10 +34,10 @@ const useHome = () => {
   const closeModal = () => {
     setIsOpen(false);
   }
-  return { connectMetaMask, openModal, closeModal, isOpen, disConnectWallet, isConnect, walletConnect };
+  return { connectMetaMask, openModal, closeModal, isOpen, disConnectWallet, isConnect, balance, userAddress };
 }
-export default function Home() {
-  const { connectMetaMask, openModal, closeModal, isOpen, disConnectWallet, isConnect, walletConnect } = useHome();
+export default function Home({ allPostsData }) {
+  const { connectMetaMask, openModal, closeModal, isOpen, disConnectWallet, isConnect, balance, userAddress } = useHome();
   const style = {
     position: 'absolute',
     top: '50%',
@@ -45,6 +50,8 @@ export default function Home() {
     borderRadius: 2,
     p: 4,
   };
+  const receiver = 'IT';
+  const [tokenValue, setTokenValue] = React.useState('');
   return (
     <div className="container">
       <Modal
@@ -65,7 +72,7 @@ export default function Home() {
               </Button>
             </Grid>
             <Grid item xs={12} style={{ marginTop: '10px' }}>
-              <Button variant="outlined" onClick={walletConnect} color="secondary" startIcon={<img src="images/walletconnect.png" width="30" />}>
+              <Button variant="outlined" onClick={openModal} color="secondary" startIcon={<img src="images/walletconnect.png" width="30" />}>
                 WalletConnect
               </Button>
             </Grid>
@@ -89,7 +96,7 @@ export default function Home() {
           noWrap
           sx={{ flex: 1 }}
         >
-          Web3 Learning
+          {userAddress ? userAddress : `Web3 Learning`}
         </Typography>
         {
           !isConnect ? (
@@ -105,6 +112,35 @@ export default function Home() {
           )
         }
       </Toolbar>
+      <Box xs={12}>
+        <Typography>{balance ? balance : 'No balance'}</Typography>
+      </Box>
+      <Box xs={12}>
+        <Grid container style={{ alignItems: 'center', justifyContent: 'center' }} spacing={3}>
+          <Grid item xs={2}>
+            <Typography>Send Some Tokens</Typography>
+          </Grid>
+          <Grid item xs={3}>
+            <TextField label="To" value={receiver} variant="outlined" fullWidth />
+          </Grid>
+          <Grid item xs={3}>
+            <TextField label="Value" variant="outlined" value={tokenValue} onChange={e => setTokenValue(e.target.value)} fullWidth />
+          </Grid>
+        </Grid>
+      </Box>
+      <Box>
+        <ul>
+          {allPostsData.map(({ id, date, title }) => (
+            <li key={id}>
+              {title}
+              <br />
+              {id}
+              <br />
+              {date}
+            </li>
+          ))}
+        </ul>
+      </Box>
 
       <style jsx global>{`
         html,
@@ -122,4 +158,13 @@ export default function Home() {
       `}</style>
     </div>
   )
+}
+
+export async function getStaticProps() {
+  const allPostsData = getSortedPostsData()
+  return {
+    props: {
+      allPostsData
+    }
+  }
 }
